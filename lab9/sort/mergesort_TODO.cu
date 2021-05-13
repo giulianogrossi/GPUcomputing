@@ -19,21 +19,20 @@ void arrayCopy(int *, const int *, const int);
  */
 __global__ void cudaMergeSort(int *array, int *sorted, int n, int chunk) {
 
-	int start = chunk * threadIdx.x + blockIdx.x * blockDim.x;
-	if (start > n)
+	int start = chunk * (threadIdx.x + blockIdx.x * blockDim.x);
+	if (start > n - chunk)
 		return;
-	int mid = min(start + chunk / 2, n);
-	int end = min(start + chunk, n);
-	int i = start, j = end, k = mid;
+
+	int mid = start + chunk / 2;
+	int end = start + chunk;
+	int i = start, j = mid, k = start;
 
 	//cudaMerge(array, sorted, start, mid, end);
-	while (i < mid && j < end) {
-		if (array[i] <= array[j]) {
+	while (i < mid && j < end) 
+		if (array[i] <= array[j]) 
 			sorted[k++] = array[i++];
-		} else {
+		else 
 			sorted[k++] = array[j++];
-		}
-	}
 
 	// Copy the remaining elements array[i] if there are any
 	while (i < mid)
@@ -116,14 +115,16 @@ int main(int argc, char** argv) {
 	/*****************************************************
 	 *              ONE THREAD x chunk                   *
 	 *****************************************************/
-	printf("\n*** GPU ONE THREAD x chunk processing...\n");
-	arrayCopy(array, orig, N);
-	bool array2sorted = true;
+	
+  printf("\n*** GPU ONE THREAD x chunk processing...\n");
+	arrayCopy(sorted, orig, N); // start from step 2
+	bool array2sorted = false;
 	CHECK(cudaEventRecord(start));
 	for (int chunk = 2; chunk <= N; chunk *= 2) {
 		int nThreads = N / chunk;
 		dim3 block(min(nThreads, BLOCK_SIZE));
 		dim3 grid((nThreads + block.x - 1) / block.x);
+
 		if (array2sorted)
 			cudaMergeSort<<<grid, block>>>(array, sorted, N, chunk);
 		else
@@ -139,12 +140,6 @@ int main(int argc, char** argv) {
 	printf("   elapsed time:   %.5f (sec)\n", GPUtime);
 	printf("   speedup vs CPU: %.2f\n", CPUtime / GPUtime);
 
-	if (!array2sorted) {
-		int *swap = sorted;
-		sorted = array;
-		array = swap;
-	}
-//	printArray(sorted,N,0);
 	check_up_sorting(sorted, N);
 
 	/*****************************************************
