@@ -1,7 +1,3 @@
-/*
- * mqdb.cpp
- */
-
 #include "mqdb.h"
 
 /**
@@ -31,14 +27,14 @@ int genRandDims(mqdb *M, uint n, uint k) {
 }
 
 /**
- * fill blocks either random or constant
+ * # fill blocks either random or constant #
  */
 void fillBlocks(mqdb *M, uint n, uint k, char T, float c) {
 	//mat size n*n
 	M->elem = (float *) calloc(n * n, sizeof(float));
 	M->nElems = 0;
 	int offset = 0;
-	// loop on blocks
+	// # loop on blocks #
 	for (int i = 0; i < k; i++) {
 		for (int j = 0; j < M->blkSize[i]; j++)
 			for (int k = 0; k < M->blkSize[i]; k++)
@@ -49,7 +45,7 @@ void fillBlocks(mqdb *M, uint n, uint k, char T, float c) {
 		offset += M->blkSize[i];
 		M->nElems += M->blkSize[i]*M->blkSize[i];
 	}
-	// set description
+	// # set description #
 	sprintf(M->desc, "Random mqdb:  mat. size = %d, num. blocks = %d, blk sizes: ",n,k);
 }
 
@@ -65,14 +61,14 @@ mqdb genRandMat(unsigned n, unsigned k, unsigned seed) {
 	genRandDims(&M, n, k);
 	M.nBlocks = k;
 
-	// random fill mat entries
+	// # random fill mat entries #
 	fillBlocks(&M, n, k, 'R', 0.0);
 
 	return M;
 }
 
 /**
- * const_mqdb: mqdb  is the type returned
+ * const_mqdb: mqdb     is the type returned
  *                n     is the square matrix size
  *                k     is the number of blocks
  *                seed  is the seed for random generator
@@ -88,15 +84,6 @@ mqdb mqdbConst(uint n, uint k, uint seed, float c) {
 	fillBlocks(&M, n, k, 'C', c);
 
 	return M;
-}
-
-/*
- * product between mqdb matrices restricted to blocks
- */
-void mqdbProd(mqdb A, mqdb B, mqdb C) {
-
-	// TODO
-
 }
 
 /*
@@ -129,7 +116,7 @@ void checkResult(mqdb A, mqdb B) {
 	for (int i = 0; i < A.nBlocks; i++)
 		n += A.blkSize[i];
 	for (int i = 0; i < n * n; i++) {
-		if (abs(A.elem[i] - B.elem[i]) > epsilon) {
+		if (fabs(A.elem[i] - B.elem[i]) > epsilon) {
 			match = 0;
 			printf("   * Arrays do not match!\n");
 			printf("     gpu: %2.2f,  host: %2.2f at current %d\n", A.elem[i],
