@@ -4,10 +4,11 @@
 
 #include "ImageStuff.h"
 
+struct ImgProp ip;
+
 /*
  * Load a BMP image
  */
-
 pel** ReadBMP(char* filename) {
 	FILE* f = fopen(filename, "rb");
 	if (f == NULL) {
