@@ -1,4 +1,4 @@
-# GPU computing
+# GPU computing 2023/24
 Materiale di laboratorio del corso di GPU computing - laurea Magistrale in Informatica @ [di.unimi.it](http://www.di.unimi.it)
 
 Pagina del corso: [gpu.di.unimi.it](http://gpu.di.unimi.it/)
