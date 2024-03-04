@@ -42,7 +42,7 @@ class NVCCPlugin(Magics):
         self.parser_cuda_group_delete = parsers.get_parser_cuda_group_delete()
         self.parser_cuda_group_run = parsers.get_parser_cuda_group_run()
 
-        self.workdir = tempfile.mkdtemp()
+        self.workdir = './src'
         print(f'Source files will be saved in "{self.workdir}".')
 
     def _save_source(
