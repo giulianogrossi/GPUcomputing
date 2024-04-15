@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "GPUhelper.h"
 #include "common.h"
 
 int main(void) {

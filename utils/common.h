@@ -1,10 +1,10 @@
-#include <sys/time.h>
-#include <stdio.h>
-#include "helper_string.h"
-#include "helper_cuda.h"
-
 #ifndef _COMMON_H
 #define _COMMON_H
+
+#include <stdio.h>
+#include <sys/time.h>
+#include "helper_string.h"
+#include "helper_cuda.h"
 
 #define CHECK(call)                                                            \
 {                                                                              \
