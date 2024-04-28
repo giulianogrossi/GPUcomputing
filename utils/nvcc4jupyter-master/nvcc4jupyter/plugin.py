@@ -7,7 +7,6 @@ import glob
 import os
 import shutil
 import subprocess
-import tempfile
 import uuid
 from typing import List, Optional
 
@@ -45,9 +44,7 @@ class NVCCPlugin(Magics):
         self.workdir = './src'
         print(f'Source files will be saved in "{self.workdir}".')
 
-    def _save_source(
-        self, source_name: str, source_code: str, group_name: str
-    ) -> None:
+    def _save_source(self, source_name: str, source_code: str, group_name: str) -> None:
         """
         Save source code as a .cu or .h file in the group directory where
         files can be compiled together. Saving a source file to the group
@@ -66,9 +63,7 @@ class NVCCPlugin(Magics):
         """
         _, ext = os.path.splitext(source_name)
         if ext not in (".cu", ".h"):
-            raise ValueError(
-                f'Given source name "{source_name}" must end in ".h" or ".cu".'
-            )
+            raise ValueError(f'Given source name "{source_name}" must end in ".h" or ".cu".')
         group_dirpath = os.path.join(self.workdir, group_name)
         os.makedirs(group_dirpath, exist_ok=True)
         source_fpath = os.path.join(group_dirpath, source_name)
@@ -182,9 +177,7 @@ class NVCCPlugin(Magics):
 
         return output
 
-    def _compile_and_run(
-        self, group_name: str, args: argparse.Namespace
-    ) -> str:
+    def _compile_and_run(self, group_name: str, args: argparse.Namespace) -> str:
         try:
             exec_fpath = self._compile(
                 group_name=group_name,
@@ -200,9 +193,7 @@ class NVCCPlugin(Magics):
             output = e.output.decode("utf8")
         return output
 
-    def _read_args(
-        self, line: str, parser: argparse.ArgumentParser
-    ) -> Optional[argparse.Namespace]:
+    def _read_args(self, line: str, parser: argparse.ArgumentParser) -> Optional[argparse.Namespace]:
         """
         Read arguments from the magic line. Makes sure to keep arguments
         between double quotes together for use with profiler arguments or
@@ -249,7 +240,8 @@ class NVCCPlugin(Magics):
         if args is None:
             return
 
-        group_name = str(uuid.uuid4())
+        #group_name = str(uuid.uuid4())
+        group_name = "tmp"
         self._save_source(
             source_name="single_file.cu",
             source_code=cell,
