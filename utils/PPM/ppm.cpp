@@ -126,48 +126,47 @@ PPM *ppm_rand(int width, int height) {
     return ppm1;
 }
 
-
 /*
- * Flip vertically in place by swapping columns.
- */
- void ppm_flipH_row(PPM* ppm) {
-    int row_size = ppm->width * 3;
-    color *temp_row = (color *)malloc(row_size);
-
-    for (int i = 0; i < ppm->height / 2; i++) {
-        color *top = ppm->image + i * row_size;
-        color *bottom = ppm->image + (ppm->height - 1 - i) * row_size;
-        memcpy(temp_row, top, row_size);
-        memcpy(top, bottom, row_size);
-        memcpy(bottom, temp_row, row_size);
-    }
-    free(temp_row);
-}
-
-/*
- * Flip vertically in place by swapping rows.
- */
-void ppm_flipV(PPM* ppm) {
-    for (int x = 0; x < ppm->width; x++) {
-        for (int y = 0; y < ppm->height/2; y++) {
-            pel p1 = ppm_get(ppm, x, y);
-            pel p2 = ppm_get(ppm, x, ppm->height - y - 1);
-            ppm_set(ppm, x, y, p2);
-            ppm_set(ppm, x, ppm->height - y - 1, p1);
-        }
-    }
-}
-
-/*
- * Flip horizontally in place by swapping columns.
+ * Flip horizontally in place by swapping column elements.
  */   
-void ppm_flipH(PPM* ppm) {
+ void ppm_flipH(PPM* ppm) {
     for (int x = 0; x < ppm->width/2; x++) {
         for (int y = 0; y < ppm->height; y++) {
             pel p1 = ppm_get(ppm, x, y);
             pel p2 = ppm_get(ppm, ppm->width - x - 1, y);
             ppm_set(ppm, x, y, p2);
             ppm_set(ppm, ppm->width - x - 1, y, p1);
+        }
+    }
+}
+
+/*
+* Flip vertically in place by swapping rows.
+*/
+void ppm_flipV_row(PPM *ppm) {
+    int row_size = ppm->width * 3;
+    color *temp_row = (color *)malloc(row_size);
+
+    for (int j = 0; j < ppm->height/2; j++) {
+        color *row = ppm->image + i * row_size;
+        color *right = row + (ppm->width - 1 - j) * 3;
+        memcpy(temp_row, left, row_size);
+        memcpy(left, right, row_size);
+        memcpy(right, temp_row, row_size);
+    }
+    free(temp_row);
+}
+
+/*
+ * Flip vertically in place by swapping row elements.
+ */
+ void ppm_flipV(PPM* ppm) {
+    for (int y = 0; y < ppm->height/2; y++) {
+        for (int x = 0; x < ppm->width; x++) {
+            pel p1 = ppm_get(ppm, x, y);
+            pel p2 = ppm_get(ppm, x, ppm->height - y - 1);
+            ppm_set(ppm, x, y, p2);
+            ppm_set(ppm, x, ppm->height - y - 1, p1);
         }
     }
 }
