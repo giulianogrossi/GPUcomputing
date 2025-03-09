@@ -36,7 +36,7 @@ void ppm_flipH(PPM *ppm);
  // Flip horizontally in place by swapping column elements.
 void ppm_flipV(PPM *ppm);
 // Flip vertically in place by swapping rows
-void ppm_flipH_row(PPM *ppm); 
+void ppm_flipV_row(PPM *ppm); 
 // Compare two ppm images for equality
 int ppm_equal(PPM *ppm1, PPM *ppm2); 
 

@@ -148,11 +148,11 @@ void ppm_flipV_row(PPM *ppm) {
     color *temp_row = (color *)malloc(row_size);
 
     for (int j = 0; j < ppm->height/2; j++) {
-        color *row = ppm->image + i * row_size;
-        color *right = row + (ppm->width - 1 - j) * 3;
-        memcpy(temp_row, left, row_size);
-        memcpy(left, right, row_size);
-        memcpy(right, temp_row, row_size);
+        color *row1 = ppm->image + j * row_size;
+        color *row2 = ppm->image + (ppm->width - 1 - j) * row_size;
+        memcpy(temp_row, row1, row_size);
+        memcpy(row1, row2, row_size);
+        memcpy(row2, temp_row, row_size);
     }
     free(temp_row);
 }
