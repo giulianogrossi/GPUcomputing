@@ -3,7 +3,7 @@
 #include "ppm.h"
 
 /*
- * Set appropriate pel: color RGB
+ * Set pel (pixel element) in ppm image.
  */
  void ppm_set(PPM* ppm, int x, int y, pel c) {
     if (x < 0 || x >= ppm->width || y < 0 || y > ppm->height) {
@@ -17,7 +17,7 @@
 }
 
 /*
- * Get appropriate color pel: RGB
+ * Get pel (pixel element) from ppm image.
  */
  pel ppm_get(PPM* ppm, int x, int y) {     
     if (x < 0 || x >= ppm->width || y < 0 || y > ppm->height) {
@@ -33,6 +33,9 @@
     return p;
 }
 
+/*
+* Load ppm image from file.
+*/
 PPM *ppm_load(const char *filename) {
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
@@ -61,6 +64,9 @@ PPM *ppm_load(const char *filename) {
     return ppm;
 }
 
+/*
+* Create a new ppm image (width x height) with all pixels set to c.
+*/
 PPM *ppm_make(int width, int height, pel c) {
     PPM *ppm = (PPM *)malloc(sizeof(PPM));
     ppm->image = (color *)malloc(3 * width * height);
@@ -75,6 +81,9 @@ PPM *ppm_make(int width, int height, pel c) {
     return ppm;
 }
 
+/*
+* Create a new ppm image (width x height) with random pixel values.
+*/
 PPM *ppm_rand(int width, int height) {
     PPM *ppm = (PPM *)malloc(sizeof(PPM));
     ppm->image = (color *)malloc(3 * width * height);
@@ -90,7 +99,7 @@ PPM *ppm_rand(int width, int height) {
 }
 
 /*
- * Write ppm image to file.
+ * Write ppm image to file path.
  */
  void ppm_write(PPM* ppm, const char* path) {
     FILE* fp;
@@ -105,7 +114,7 @@ PPM *ppm_rand(int width, int height) {
 }
 
 /*
- * Write ppm image to file.
+ * Create a copy of ppm image.
  */
  PPM *ppm_copy(PPM* ppm) {
     PPM *ppm1 = (PPM *)malloc(sizeof(PPM));
@@ -136,8 +145,8 @@ PPM *ppm_rand(int width, int height) {
 }
 
 /*
- * Flip vertically in place.
- */     
+ * Flip vertically in place by swapping rows.
+ */
 void ppm_flipV(PPM* ppm) {
     for (int x = 0; x < ppm->width; x++) {
         for (int y = 0; y < ppm->height/2; y++) {
@@ -150,7 +159,7 @@ void ppm_flipV(PPM* ppm) {
 }
 
 /*
- * Flip horizontally in place.
+ * Flip horizontally in place by swapping columns.
  */   
 void ppm_flipH(PPM* ppm) {
     for (int x = 0; x < ppm->width/2; x++) {
@@ -163,7 +172,9 @@ void ppm_flipH(PPM* ppm) {
     }
 }
 
-// check if the images are uqual
+/*
+ * Check if two ppm images are equal.
+ */
 int ppm_equal(PPM* ppm1, PPM* ppm2) {
     if (ppm1->width != ppm2->width || ppm1->height != ppm2->height) {
         return 0;
