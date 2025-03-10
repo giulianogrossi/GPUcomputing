@@ -187,3 +187,51 @@ int ppm_equal(PPM* ppm1, PPM* ppm2) {
     }
     return 1;
 }
+// Blurring filter for ppm images    
+PPM *ppm_blur(PPM* ppm) {
+    PPM *ppm_b = ppm_copy(ppm);
+    for (int x = 1; x < ppm->width - 1; x++) {
+        for (int y = 1; y < ppm->height - 1; y++) {
+            pel p1 = ppm_get(ppm, x - 1, y - 1);
+            pel p2 = ppm_get(ppm, x, y - 1);
+            pel p3 = ppm_get(ppm, x + 1, y - 1);
+            pel p4 = ppm_get(ppm, x - 1, y);
+            pel p5 = ppm_get(ppm, x, y);
+            pel p6 = ppm_get(ppm, x + 1, y);
+            pel p7 = ppm_get(ppm, x - 1, y + 1);
+            pel p8 = ppm_get(ppm, x, y + 1);
+            pel p9 = ppm_get(ppm, x + 1, y + 1);
+            pel p;
+            p.r = (color)((p1.r + p2.r + p3.r + p4.r + p5.r + p6.r + p7.r + p8.r + p9.r) / 9);
+            p.g = (color)((p1.g + p2.g + p3.g + p4.g + p5.g + p6.g + p7.g + p8.g + p9.g) / 9);
+            p.b = (color)((p1.b + p2.b + p3.b + p4.b + p5.b + p6.b + p7.b + p8.b + p9.b) / 9);
+            ppm_set(ppm_b, x, y, p);
+        }
+    }
+    return ppm_b;
+}
+
+// Sharpening filters for ppm images   
+void ppm_sharpen(PPM* ppm) {
+    PPM *ppm1 = ppm_copy(ppm);
+    for (int x = 1; x < ppm->width - 1; x++) {
+        for (int y = 1; y < ppm->height - 1; y++) {
+            pel p1 = ppm_get(ppm1, x - 1, y - 1);
+            pel p2 = ppm_get(ppm1, x, y - 1);
+            pel p3 = ppm_get(ppm1, x + 1, y - 1);
+            pel p4 = ppm_get(ppm1, x - 1, y);
+            pel p5 = ppm_get(ppm1, x, y);
+            pel p6 = ppm_get(ppm1, x + 1, y);
+            pel p7 = ppm_get(ppm1, x - 1, y + 1);
+            pel p8 = ppm_get(ppm1, x, y + 1);
+            pel p9 = ppm_get(ppm1, x + 1, y + 1);
+            pel p;
+            p.r = 5 * p5.r - p2.r - p4.r - p6.r - p8.r;
+            p.g = 5 * p5.g - p2.g - p4.g - p6.g - p8.g;
+            p.b = 5 * p5.b - p2.b - p4.b - p6.b - p8.b;
+            ppm_set(ppm, x, y, p);
+        }
+    }
+    free(ppm1->image);
+    free(ppm1);
+}

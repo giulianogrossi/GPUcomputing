@@ -39,5 +39,7 @@ void ppm_flipV(PPM *ppm);
 void ppm_flipV_row(PPM *ppm); 
 // Compare two ppm images for equality
 int ppm_equal(PPM *ppm1, PPM *ppm2); 
+// Blurring filter for ppm images
+PPM *ppm_blur(PPM *ppm);
 
 #endif

@@ -2,7 +2,7 @@
 #include "ppm.h"
 
 int main(void) {
-    char *path = "../../images/dog.ppm";
+    char path[] = "../../images/dog.ppm";
     PPM *img = ppm_load(path);
     printf("PPM image size (w x h): %d x %d\n", img->width, img->height);
         
@@ -30,6 +30,10 @@ int main(void) {
     PPM *img3 = ppm_copy(img);
     ppm_flipV(img3);
     ppm_write(img3, "../../images/output_flippedV.ppm");
+
+    // blur the image
+    PPM *img4 = ppm_blur(img);
+    ppm_write(img4, "../../images/output_blurred.ppm");
 
     return 0;
 }
