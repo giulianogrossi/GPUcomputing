@@ -40,6 +40,9 @@ void ppm_flipV_row(PPM *ppm);
 // Compare two ppm images for equality
 int ppm_equal(PPM *ppm1, PPM *ppm2); 
 // Blurring filter for ppm images
-PPM *ppm_blur(PPM *ppm);
+void ppm_blur(PPM *ppm, PPM *ppm_filtered, int KERNEL_SIZE);
+// blur kernel
+pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZE);
+
 
 #endif

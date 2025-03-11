@@ -187,30 +187,42 @@ int ppm_equal(PPM* ppm1, PPM* ppm2) {
     }
     return 1;
 }
-// Blurring filter for ppm images    
-PPM *ppm_blur(PPM* ppm) {
-    PPM *ppm_b = ppm_copy(ppm);
-    for (int x = 1; x < ppm->width - 1; x++) {
-        for (int y = 1; y < ppm->height - 1; y++) {
-            pel p1 = ppm_get(ppm, x - 1, y - 1);
-            pel p2 = ppm_get(ppm, x, y - 1);
-            pel p3 = ppm_get(ppm, x + 1, y - 1);
-            pel p4 = ppm_get(ppm, x - 1, y);
-            pel p5 = ppm_get(ppm, x, y);
-            pel p6 = ppm_get(ppm, x + 1, y);
-            pel p7 = ppm_get(ppm, x - 1, y + 1);
-            pel p8 = ppm_get(ppm, x, y + 1);
-            pel p9 = ppm_get(ppm, x + 1, y + 1);
-            pel p;
-            p.r = (color)((p1.r + p2.r + p3.r + p4.r + p5.r + p6.r + p7.r + p8.r + p9.r) / 9);
-            p.g = (color)((p1.g + p2.g + p3.g + p4.g + p5.g + p6.g + p7.g + p8.g + p9.g) / 9);
-            p.b = (color)((p1.b + p2.b + p3.b + p4.b + p5.b + p6.b + p7.b + p8.b + p9.b) / 9);
-            ppm_set(ppm_b, x, y, p);
+
+/*
+* Blurring filter for ppm images
+*/     
+void ppm_blur(PPM* ppm, PPM *ppm_filtered, int KERNEL_SIZE) {
+    for (int x = 0; x < ppm->width; x++) {
+        for (int y = 0; y < ppm->height; y++) {
+            pel p = ppm_blurKernel(ppm, x, y, ppm->width, ppm->height, KERNEL_SIZE);
+            ppm_set(ppm_filtered, x, y, p);
         }
     }
-    return ppm_b;
 }
 
+/*
+* blur kernel
+*/
+pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZE) {
+    float R=0, G=0, B=0;
+    int numPixels = 0;
+    int RADIUS = KERNEL_SIZE/2;
+    for(int r = -RADIUS; r < RADIUS; ++r) {
+        for(int c = -RADIUS; c < RADIUS; ++c) {
+            int row = y + r;
+            int col = x + c;
+            if(row > -1 && row < height && col > -1 && col < width) {
+                pel p = ppm_get(ppm, col, row);
+                R += p.r;
+                G += p.g;
+                B += p.b;
+                numPixels++;
+            }
+        }
+    }
+    pel p_fil = {R/numPixels, G/numPixels, B/numPixels};
+    return p_fil;
+}   
 // Sharpening filters for ppm images   
 void ppm_sharpen(PPM* ppm) {
     PPM *ppm1 = ppm_copy(ppm);
