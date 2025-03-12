@@ -16,8 +16,8 @@ int main(void) {
     ppm_write(img, "../../images/output.ppm");
 
     // create a random image
-    int width = 200;
-    int height = 100;
+    int width = 20;
+    int height = 10;
     PPM *img1 = ppm_rand(width, height);
     ppm_write(img1, "../../images/test.ppm");
 

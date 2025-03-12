@@ -220,7 +220,7 @@ pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZ
             }
         }
     }
-    pel p_fil = {R/numPixels, G/numPixels, B/numPixels};
+    pel p_fil = {(color)(R/numPixels), (color)(G/numPixels), (color)(B/numPixels)};
     return p_fil;
 }   
 // Sharpening filters for ppm images   
