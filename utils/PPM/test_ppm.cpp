@@ -40,5 +40,14 @@ int main(void) {
     ppm_blur(img, img4, KERNEL_SIZE);
     ppm_write(img4, "../../images/output_blurred.ppm");
 
+    // histogram
+    int *histogram = ppm_histogram(img);
+    ppm_save_histogram(histogram, "../../images/histogram.ppm"); 
+    
+    // color frequency
+    pel c = {0, 0, 0};
+    int freq = ppm_freq_color(img, c);
+    printf("Color frequency of (%u %u %u) is %d\n", c.r, c.g, c.b, freq);
+
     return 0;
 }

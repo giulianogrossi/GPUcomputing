@@ -109,7 +109,8 @@ PPM *ppm_rand(int width, int height) {
     fprintf(fp, "P6\n");
     fprintf(fp, "%d %d\n", ppm->width, ppm->height);
     fprintf(fp, "%d\n", ppm->maxval);
-    fwrite(ppm->image, ppm->width*3, ppm->height, fp);
+    fwrite(ppm->image, 1, 3*ppm->width*ppm->height, fp);
+	fprintf(fp, "\n");
     fclose(fp);
 }
 
@@ -223,27 +224,89 @@ pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZ
     pel p_fil = {(color)(R/numPixels), (color)(G/numPixels), (color)(B/numPixels)};
     return p_fil;
 }   
-// Sharpening filters for ppm images   
-void ppm_sharpen(PPM* ppm) {
-    PPM *ppm1 = ppm_copy(ppm);
-    for (int x = 1; x < ppm->width - 1; x++) {
-        for (int y = 1; y < ppm->height - 1; y++) {
-            pel p1 = ppm_get(ppm1, x - 1, y - 1);
-            pel p2 = ppm_get(ppm1, x, y - 1);
-            pel p3 = ppm_get(ppm1, x + 1, y - 1);
-            pel p4 = ppm_get(ppm1, x - 1, y);
-            pel p5 = ppm_get(ppm1, x, y);
-            pel p6 = ppm_get(ppm1, x + 1, y);
-            pel p7 = ppm_get(ppm1, x - 1, y + 1);
-            pel p8 = ppm_get(ppm1, x, y + 1);
-            pel p9 = ppm_get(ppm1, x + 1, y + 1);
-            pel p;
-            p.r = 5 * p5.r - p2.r - p4.r - p6.r - p8.r;
-            p.g = 5 * p5.g - p2.g - p4.g - p6.g - p8.g;
-            p.b = 5 * p5.b - p2.b - p4.b - p6.b - p8.b;
-            ppm_set(ppm, x, y, p);
+
+/* 
+* Istogramma RGB dell'immagine PPM
+*/
+int *ppm_histogram(PPM *ppm) {
+    int *histogram = (int *)malloc(3* 256 * sizeof(int));
+    
+    // initialize histogram
+    for (int x = 0; x < 3 * 256; x++) 
+        histogram[x] = 0;
+
+    // count the number of pixels for each color
+    for (int x = 0; x < ppm->width * ppm->height; x++) {
+        histogram[ppm->image[3*x]]++;
+        histogram[ppm->image[3*x+1] + 256]++;
+        histogram[ppm->image[3*x+2] + 512]++;
+    }
+    return histogram;
+}
+
+// Function to create and save a histogram as a PPM image
+void ppm_save_histogram(int *histogram, const char *filename) {
+    // size of the image
+    int histSize = 3*256; // R,G,B * 256
+    int WIDTH = 3*256*3;  // 3*256 bars, each 3 pixels wide
+    int HEIGHT = 500;     //  image height
+    int stride = 0;
+
+    // find max of the histogram    
+    float max_h = 0.0f;
+    for (int i = 0; i < histSize; i++) 
+        if (histogram[i] > max_h) 
+            max_h = histogram[i];
+
+    // scale histogram to fit in the image
+    int *histogram_scaled = (int *)malloc(histSize * sizeof(int));
+    for (int i = 0; i < histSize; i++) 
+        histogram_scaled[i] = (int)((float)histogram[i] / max_h * HEIGHT);
+    
+    // Create a new PPM image: canvas for the histogram 
+    PPM *ppm_h = ppm_make(WIDTH, HEIGHT, (pel){150, 150, 150});
+
+    // Draw histogram bars for R
+    for (int i = 0; i < 256; i++) {
+        // make red bars
+        int barHeight = histogram_scaled[i];
+        for (int y = HEIGHT; y >=  HEIGHT-barHeight; y--) {
+            ppm_set(ppm_h, 3*i+1, y, (pel){255, 0, 0});
+            ppm_set(ppm_h, 3*i+2, y, (pel){255, 0, 0});
+        }   
+        // make green bars
+        barHeight = histogram_scaled[i+256];
+        for (int y = HEIGHT; y >=  HEIGHT-barHeight; y--) {
+            int stride = 3*256;
+            ppm_set(ppm_h, 3*i+1+stride, y, (pel){0, 255, 0});
+            ppm_set(ppm_h, 3*i+2+stride, y, (pel){0, 255, 0});
+        }
+        // make blue bars
+        barHeight = histogram_scaled[i+512];
+        for (int y = HEIGHT; y >=  HEIGHT-barHeight; y--) { 
+            stride = 6*256;
+            ppm_set(ppm_h, 3*i+1+stride, y, (pel){0, 0, 255});
+            ppm_set(ppm_h, 3*i+2+stride, y, (pel){0, 0, 255});
         }
     }
-    free(ppm1->image);
-    free(ppm1);
+
+    // Save the histogram image
+    ppm_write(ppm_h, filename);
+    printf("Histogram saved as %s\n", filename);
+}
+
+
+/* 
+* PPM color frequency
+*/
+int ppm_freq_color(PPM *ppm, pel c) {    
+    int count = 0;
+
+    // count the number of pixels for each color
+    for (int x = 0; x < ppm->width * ppm->height; x++) {
+        if (ppm->image[3*x] == c.r && ppm->image[3*x+1] == c.g && ppm->image[3*x+2] == c.b) {
+            count++;
+        }
+    }
+    return count;
 }

@@ -43,6 +43,11 @@ int ppm_equal(PPM *ppm1, PPM *ppm2);
 void ppm_blur(PPM *ppm, PPM *ppm_filtered, int KERNEL_SIZE);
 // blur kernel
 pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZE);
-
+// Istogramma RGB dell'immagine PPM
+int *ppm_histogram(PPM *ppm);
+// Save histogram image
+void ppm_save_histogram(int *histogram,  const char *filename);
+//PPM color frequency
+int ppm_freq_color(PPM *ppm, pel c);
 
 #endif
