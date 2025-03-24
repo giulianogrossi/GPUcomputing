@@ -36,9 +36,16 @@ int main(void) {
 
     // blur the image
     PPM *img4 = ppm_make(img->width, img->height, (pel) {0,0,0});
-    int KERNEL_SIZE = 21;
-    ppm_blur(img, img4, KERNEL_SIZE);
+    int MASK_SIZE = 21;
+    ppm_blur(img, img4, MASK_SIZE);
     ppm_write(img4, "../../images/output_blurred.ppm");
+
+    // apply gaussian filter to the image
+    PPM *img5 = ppm_make(img->width, img->height, (pel) {0,0,0});
+    MASK_SIZE = 21;
+    float SIGMA = 10.0;
+    ppm_gaussFilter(img, img5, MASK_SIZE, SIGMA);
+    ppm_write(img5, "../../images/output_gaussian.ppm");
 
     // histogram
     int *histogram = ppm_histogram(img);

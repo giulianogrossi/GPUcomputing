@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+
 #define color unsigned char
 
 typedef struct {
@@ -49,5 +51,15 @@ int *ppm_histogram(PPM *ppm);
 void ppm_save_histogram(int *histogram,  const char *filename);
 //PPM color frequency
 int ppm_freq_color(PPM *ppm, pel c);
+// gaussian filter to the image
+void ppm_gaussFilter(PPM *ppm, PPM *ppm_filtered, int KERNEL_SIZE, float SIGMA);
+// Gaussian filter
+pel ppm_gaussKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZE, float *mask);
+// Gaussian mask
+float *gaussMask(int KERNEL_SIZE, float SIGMA);
+// PPM extract channel: 0 = R, 1 = G, 2 = B
+color *ppm_extract_channel(PPM *ppm, int RGB_channel);
+// PPM combine channels
+PPM *ppm_combine_channels(color *R, color *G, color *B, int width, int height);
 
 #endif

@@ -190,6 +190,67 @@ int ppm_equal(PPM* ppm1, PPM* ppm2) {
 }
 
 /*
+* Gaussian mask
+*/
+float *gaussMask(int MASK_SIZE, float SIGMA) {
+    float *mask = (float *)malloc(MASK_SIZE * MASK_SIZE * sizeof(float));
+    float sum = 0.0;
+    int RADIUS = MASK_SIZE / 2;
+    float sigma2 = 2.0 * SIGMA * SIGMA;
+    
+    for (int i = 0; i < MASK_SIZE; i++) {
+        for (int j = 0; j < MASK_SIZE; j++) {
+            int x = i - RADIUS;
+            int y = j - RADIUS;
+            mask[i*MASK_SIZE+j] = exp(-(x * x + y * y) / sigma2) / (M_PI * sigma2);
+            sum += mask[i*MASK_SIZE+j];
+        }
+    }
+    
+    for (int i = 0; i < MASK_SIZE; i++) {
+        for (int j = 0; j < MASK_SIZE; j++) {
+            mask[i*MASK_SIZE+j] /= sum;
+        }
+    }
+    return mask;
+}
+
+/*
+* Gaussian filter for ppm images
+*/     
+void ppm_gaussFilter(PPM* ppm, PPM *ppm_filtered, int MASK_SIZE, float SIGMA) {
+    float *mask = gaussMask(MASK_SIZE, SIGMA);
+    for (int x = 0; x < ppm->width; x++) {
+        for (int y = 0; y < ppm->height; y++) {
+            pel p = ppm_gaussKernel(ppm, x, y, ppm->width, ppm->height, MASK_SIZE, mask);
+            ppm_set(ppm_filtered, x, y, p);
+        }
+    }
+}
+
+/*
+* Gaussian filter
+*/
+pel ppm_gaussKernel(PPM *ppm, int x, int y, int width, int height, int MASK_SIZE, float *mask) {
+    float R=0, G=0, B=0;
+    int RADIUS = MASK_SIZE/2;
+    for (int r = 0; r < MASK_SIZE; ++r) {
+        for (int c = 0; c < MASK_SIZE; ++c) {
+            int row = y + r - RADIUS;
+            int col = x + c - RADIUS;
+            if (row > -1 && row < height && col > -1 && col < width) {
+                float m = mask[r * MASK_SIZE + c];
+                pel p = ppm_get(ppm, col, row);
+                R += p.r * m;
+                G += p.g * m;
+                B += p.b * m;
+            }
+        }
+    }
+    return {(color)R, (color)G, (color)B};
+}   
+
+/*
 * Blurring filter for ppm images
 */     
 void ppm_blur(PPM* ppm, PPM *ppm_filtered, int KERNEL_SIZE) {
@@ -202,7 +263,7 @@ void ppm_blur(PPM* ppm, PPM *ppm_filtered, int KERNEL_SIZE) {
 }
 
 /*
-* blur kernel
+* Blur kernel 
 */
 pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZE) {
     float R=0, G=0, B=0;
@@ -226,7 +287,7 @@ pel ppm_blurKernel(PPM *ppm, int x, int y, int width, int height, int KERNEL_SIZ
 }   
 
 /* 
-* Istogramma RGB dell'immagine PPM
+* RGB histogram of the PPM image
 */
 int *ppm_histogram(PPM *ppm) {
     int *histogram = (int *)malloc(3* 256 * sizeof(int));
@@ -244,7 +305,9 @@ int *ppm_histogram(PPM *ppm) {
     return histogram;
 }
 
-// Function to create and save a histogram as a PPM image
+/*
+ *  Create and save a histogram as a PPM image
+*/
 void ppm_save_histogram(int *histogram, const char *filename) {
     // size of the image
     int histSize = 3*256; // R,G,B * 256
@@ -297,7 +360,7 @@ void ppm_save_histogram(int *histogram, const char *filename) {
 
 
 /* 
-* PPM color frequency
+* Color frequencies in the PPM image
 */
 int ppm_freq_color(PPM *ppm, pel c) {    
     int count = 0;
@@ -309,4 +372,37 @@ int ppm_freq_color(PPM *ppm, pel c) {
         }
     }
     return count;
+}
+
+/*
+* Extract channel: 0 = R, 1 = G, 2 = B
+*/
+color *ppm_extract_channel(PPM *ppm, int RGB_channel) {
+    if (RGB_channel < 0 || RGB_channel > 2) {
+        printf("Invalid channel %d\n", RGB_channel);
+        exit(EXIT_FAILURE);
+    }
+
+    color *ppm_channel = (color *)malloc(ppm->width * ppm->height);
+    for (int i = 0; i < ppm->width * ppm->height; i++) {
+        ppm_channel[i] = ppm->image[3*i + RGB_channel];
+    }
+    return ppm_channel;
+}
+
+/*
+* Combine channels: R, G, B
+*/
+PPM *ppm_combine_channels(color *R, color *G, color *B, int width, int height) {
+    PPM *ppm = (PPM *)malloc(sizeof(PPM));
+    ppm->image = (color *)malloc(3 * width * height);
+    ppm->width = width;
+    ppm->height = height;
+    ppm->maxval = 255;
+    for (int i = 0; i < width * height; i++) {
+        ppm->image[3*i] = R[i];
+        ppm->image[3*i + 1] = G[i];
+        ppm->image[3*i + 2] = B[i];
+    }
+    return ppm;
 }
